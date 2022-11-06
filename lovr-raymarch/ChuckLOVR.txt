@@ -1,0 +1,28 @@
+I have no idea how c or c++ works or their compilation madness
+but on the topic of using Chuck with LOVR
+
+there is this
+https://github.com/shakfu/pd-chuck
+
+A similar attempt to get chuck core **made available on their releases page https://chuck.stanford.edu/release/files/
+to work with PureData
+
+Dig more.
+
+
+So THE PIANO
+Integration works noicely
+
+LOVR -> FLASK -> CHUCK
+
+THings to not forget
+1) Run flask as effeciently AS possible when its time
+2) Update Chuck to use 10pianos, LOL, maybe logic it up to load when there is a need,
+   like let that one note be delayed a little by loading the Piano when more than one fingers are in use
+   And also remove pianos when they are not being used, to reduce load on LOVR
+
+3)Thread Code on LOVR to handle all key interactions, might be a little hectic
+   I mean on the amount of threads used, ideally 10 threads would be nice to handle each key parallely
+   but that might be too much.
+   
+   

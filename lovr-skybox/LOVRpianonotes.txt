@@ -1,0 +1,42 @@
+What my current version does?
+	Sideeffects = It is laggy, the quiting setup is not good.
+	Maybe destroying the colliders seems like a good move, there seems to be some sort of memory leaks
+	cause each time I exit the game, the quest home seems laggy and hand tracking gets progressively bad.
+	
+	Test - If only destroying the physics world during clenaup improves the issue, or something else also needs to be done.
+
+	
+	It can play upto 3 notes simultaneously.
+	There is option to change locations of the piano
+	There is mechanism to change between setup mode and play mode
+
+What needs to be added before I can think of setting up a Sidequest page?
+        UI:
+		Splash page
+		Update graphics
+		Chuck setup
+		Native samples.
+		
+		Logic:
+		Improve key holding mechanism, a fixed duration after which the note plays again if finger still on it is not a good one.
+		Allow for more threads.
+		Use of minimal physics colliders
+		Other ways to play and not via Chuck i.e. adding note samples.
+		
+		Nice to have:
+		A skybox (e.g a cozy room with a window to the beach or an ocean) - review the lag can be done very early on
+		Better hands
+		
+		Others
+		Link to github or ease of setup of the intermediate python server for OSC communications.
+		Chuck Scripts.
+		*******Audio Visual Effects, some function to map the tunes to a visual something.
+		
+VERY COOL SIDETOPIC
+
+Looks like a Speech to text model is possible to use with luajit ffi, using Coqui-ai STT models
+Very interesting to check out.
+It provides a tflite model and client for arm
+https://stt.readthedocs.io/en/latest/DEPLOYMENT.html#:~:text=created%2C%20including%20libstt.-,Using%20the%20command%2Dline%20client,-%C2%B6
+
+

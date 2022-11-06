@@ -1,0 +1,25 @@
+
+New VR thoughts
+
+I guess i am thinking of a pseudo sentient 3d space with animate and inanimate objects.
+I want a genetic algorithm to govern the actions of the objects
+And I am looking to be awwed from the emergent behaviours.
+
+Requirements
+
+1) I guess just pixels would do, but to keep things visually interesting maybe a bunch of voxel model from that app would work
+ultimately visually good less taxing graphics.
+
+2) Apply results from algo after meaningful iterations.
+
+
+
+
+Digital Neighbourhood / Emergent Behaviours in NPCs
+
+Search term (YT) - smart NPC GDCs
+
+https://www.youtube.com/watch?v=YjuOSgPdtS0
+Interesting points - 32.21 - How It all works?
+   
+

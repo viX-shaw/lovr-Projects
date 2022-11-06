@@ -1,0 +1,52 @@
+
+LOVR Notes:
+
+Possible to get Model:getNodePose in local space - Easy for comparison and manipulation
+
+lovr.math.quat has functions for smooth rotation transations e,g slerp, check it out
+
+
+Image Based Lighting
+https://learnopengl.com/Advanced-OpenGL/Cubemaps
+
+
+portal magic for vr developer gems - page 458
+
+https://github.com/bmild/nerf - Photogrammetry with NN, also look for adanerf.
+We’re releasing Implicitron, an extension of PyTorch3D that enables fast prototyping of 3D reconstruction and new-view synthesis methods based on rendering of implicit representations.
+
+
+
+FOr water:
+Add foam - white color to vertexes that are above some vertical threshold
+           also add when close to camera
+		   
+		   The wave shape can be made to not cover the entire width of the ocean
+		   
+Did that, but didn't love the feel - maybe cause it wasn't synced with the wave, maybe needs mulitple noises on diff scales 
+									Also, the lighting in VR was not right
+									
+									
+SO Environment map is working nice but expensive(no precalculated maps).
+The plan to add detail to our water with normal maps needs extra study, so that when add the normals we don't loose the calculated normals
+after applying the gerstner waves formula.
+
+New stuff to try
+
+1) Try the raymarch example, thats very cool and provided by bjorn so definitely must be working
+2) Maybe switch case approach to new things, like in the same app, try the water shader and the simulations and raymarch stuff
+	Main can implement the show the cases in a UI and individual files can implement.
+3) Play with the env map implementation, that is so cool I can stay there all day, if it was not so fucking hot or just my general OCD haha
+4) Http requests work on pc, check out on app   -  Works sick yo
+5) If requests work, implement a poor guitar     -  Started with piano, Got a working piano key in VR with Chuck yuhu
+	Client (App) - One String , when plucked gives a strength
+	Push over a request to python server
+	Which will generate an osc message
+	That will be played by Chuck
+	
+6) Check out pd_chuck repo, to understand how chuck can be embedded
+7) Overall the LOVR repo is a gold mine, I dont need to write this down, but its my best resource to relearn C.
+8) https://github.com/facebookresearch/ParlAI ParlAI for chitchat in text, might be possible to do audio with COqai tts.
+9) Neural Magic's Deepsparse , run models on cpu
+
+
