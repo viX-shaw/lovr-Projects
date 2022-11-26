@@ -2,7 +2,9 @@ local request = require("luajit-request/luajit-request")
 
 function lovr.load()
     --
-    local response = request.send("https://images.pexels.com/photos/1029604/pexels-photo-1029604.jpeg")
+    -- local response = request.send("https://images.pexels.com/photos/1029604/pexels-photo-1029604.jpeg")
+    local response = request.send("http://192.168.0.103:4990/stream")
+
     for k, v in pairs(response) do
         print("Response contains - "..k)
     end
