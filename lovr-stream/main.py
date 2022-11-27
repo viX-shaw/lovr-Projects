@@ -50,7 +50,7 @@ def get_shots(q, t1):
                 print("FPS", time.time() - t1)
             hwnd = screens[0][0]
             try:
-                hwnd = win32gui.GetForegroundWindow()
+                hwnd = win32gui.GetDesktopWindow()
                 bbox = win32gui.GetWindowRect(hwnd)
                 img = ImageGrab.grab(bbox)
                 # img.save('images/'+screen+'_'+'.png')

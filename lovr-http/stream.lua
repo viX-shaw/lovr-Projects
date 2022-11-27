@@ -7,11 +7,12 @@ local lovr = {
     timer = require 'lovr.timer'
 }
 
-local channelName = ...
+local channelName, exitChannelName = ...
 local channel = lovr.thread.getChannel(channelName)
+local exitChannel = lovr.thread.getChannel(exitChannelName)
 
 i = 1
-while true do
+while true and exitChannel:pop() ~= "exit" do
     local response = request.send("http://192.168.0.103:4990/stream")
     if response and response.body ~= "False" and response.code == 200 then
         channel:push(lovr.data.newImage(lovr.data.newBlob(response.body)))
@@ -20,7 +21,7 @@ while true do
     i = i + 1
     if i % 10 == 0 then
         lovr.timer.sleep(0.2)
-        -- print("Clear channel")
+        print("Clear channel")
         channel:clear()
         i = 1
     end
