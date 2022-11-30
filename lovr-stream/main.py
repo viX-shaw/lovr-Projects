@@ -21,7 +21,7 @@ def get_shots(q, t1):
     try:
         import io
         import win32gui
-        from PIL import ImageGrab
+        from PIL import ImageGrab, ImageDraw
 
         def enum_cb(hwnd, results):
             winlist.append((hwnd, win32gui.GetWindowText(hwnd)))
@@ -50,9 +50,12 @@ def get_shots(q, t1):
                 print("FPS", time.time() - t1)
             hwnd = screens[0][0]
             try:
+                _,_,(x, y) = win32gui.GetCursorInfo()
                 hwnd = win32gui.GetDesktopWindow()
                 bbox = win32gui.GetWindowRect(hwnd)
                 img = ImageGrab.grab(bbox)
+                draw = ImageDraw.Draw(img)
+                draw.polygon([(x,y), (x, y+10), (x+10, y), (x+10, y+10)], fill=128)
                 # img.save('images/'+screen+'_'+'.png')
                 img_io = io.BytesIO()
                 img.save(img_io, "PNG")

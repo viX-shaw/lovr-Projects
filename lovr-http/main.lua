@@ -1,74 +1,53 @@
-require 'utils'
--- local request = require("luajit-request/luajit-request")
-local channel, stream, mat, tex
-local sTime = lovr.timer.getTime()
+local desktop = require 'desktop'
 
-function lovr.load()
-    channelName = "lovr"
-    exitChannelName = "lovrEXIT"
-    exitLOVR = lovr.thread.getChannel(exitChannelName)
-    channel = lovr.thread.getChannel(channelName)
-    stream = lovr.thread.newThread('stream.lua')
-    stream:start(channelName, exitChannelName)
-    mat = lovr.graphics.newMaterial(lovr.graphics.newTexture(1366, 768, 1, {}))
+function lovr.load(arg)
+    --
+    debugScene = false
+    errString = nil
+    desktop.load()
+    -- print("ARG")
+    -- print(arg.restart)
+    if arg.restart == nil or arg.restart == "RESTART" then
+        debugScene = false
+    else
+        debugScene = true
+        errString = arg.restart
+    end
+    print("DEBUG"..tostring(debugScene))
 end
 
 function lovr.update()
-    reloadIfChanged()
-    -- if lovr.timer.getTime() - sTime > 15 then
-    --     lovr.event.quit()
-    -- end
+    --
+    desktop.update()
 end
 
 function lovr.draw()
     --
-    local _, present = channel:peek()
-    if present then
-        if tex == nil then
-            print("First")
-            tex = lovr.graphics.newTexture(channel:pop())
-        else
-            tex:replacePixels(channel:pop())
-        end
-        mat:setTexture(tex)
-        _:release()
+    desktop.draw()
+    
+    if debugScene then
+        lovr.graphics.print(errString, 1, 3, -3, 0.3)
+        -- print("DEBUGGING")
+    else
+        lovr.graphics.print("FPS -"..lovr.timer.getFPS(), 1, 3, -3)
+        lovr.graphics.print(p, 1, 3, -3)
     end
-    lovr.graphics.plane(mat, 0, 1.7, -0.8, 1.366, 0.728)
-    lovr.graphics.print("FPSSS -"..lovr.timer.getFPS(), 1, 3, -3)
-    -- lovr.graphics.print(p, 1, 3, -3)
+end
 
+function lovr.errhand(msg, traceback)
+    --
+    print("ORIG ERROR===========")
+    print(traceback)
+    print("=====================")
+    return desktop.errhand(msg, traceback)
 end
 
 function lovr.restart()
-    if stream:isRunning() then
-        exitLOVR:push("exit")
-        stream:wait()
-        print("Stream Closed")
-    end
-    print("Restart Event received..")
-end
-
-function lovr.errhand(message, traceback)
-    traceback = traceback or debug.traceback('', 3)
-    print('ohh NOOOO!', message)
-    print(traceback)
-    -- Close the thread
-    if stream:isRunning() then
-        exitLOVR:push("exit")
-        stream:wait()
-        print("Stream Closed")
-    end
-    return function()
-        -- lovr.graphics.print('There was an error', 0, 2, -5)
-        -- print("err hand")
-        return reloadIfChanged("restart")
-    end
+    --
+    return desktop.restart()
 end
 
 function lovr.quit()
-    if stream:isRunning() then
-        exitLOVR:push("exit")
-        stream:wait()
-        print("Stream Closed")
-    end
+    --
+    desktop.quit()
 end
