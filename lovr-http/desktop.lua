@@ -40,19 +40,13 @@ function desktop.draw()
 end
 
 function desktop.restart()
-    -- if stream:isRunning() then
-    --     exitLOVR:push("exit")
-    --     stream:wait()
-    --     print("Stream Closed")
-    -- end
-    print("Restart Event received..")
-    if errOccured then
-        print("ERR OCCURED")
-        lovr.event.restart()
-        return {"errOccured", traceback}
-    else
-        return "RESTART"
+    if lovr.system.getOS() == "Windows" and stream:isRunning() then
+        exitLOVR:push("exit")
+        stream:wait()
+        print("Stream Closed")
     end
+    print("Restart Event received..")
+    return "RESTART"
 end
 
 function desktop.errhand(message, traceback)
@@ -60,7 +54,7 @@ function desktop.errhand(message, traceback)
     print('ohh NOOOO!', message)
     print(traceback)
     -- Close the thread
-    if stream:isRunning() then
+    if lovr.system.getOS() == "Windows" and stream:isRunning() then
         exitLOVR:push("exit")
         stream:wait()
         print("Stream Closed")

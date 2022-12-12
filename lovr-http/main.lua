@@ -1,7 +1,8 @@
 local desktop = require 'desktop'
+local raymar = require 'raymarch'
 
 function lovr.load(arg)
-    --
+    -- DESKTOP SETUP
     debugScene = false
     errString = nil
     desktop.load()
@@ -14,6 +15,10 @@ function lovr.load(arg)
         errString = arg.restart
     end
     print("DEBUG"..tostring(debugScene))
+
+    -- ACTUAL SCENE RELATED STUFF
+    raymar.load()
+
 end
 
 function lovr.update()
@@ -23,15 +28,15 @@ end
 
 function lovr.draw()
     --
-    desktop.draw()
-    
     if debugScene then
         lovr.graphics.print(errString, 1, 3, -3, 0.3)
         -- print("DEBUGGING")
     else
+        -- lovr.graphics.print(p, 1, 3, -3)
+        raymar.draw()
         lovr.graphics.print("FPS -"..lovr.timer.getFPS(), 1, 3, -3)
-        lovr.graphics.print(p, 1, 3, -3)
     end
+    desktop.draw()
 end
 
 function lovr.errhand(msg, traceback)

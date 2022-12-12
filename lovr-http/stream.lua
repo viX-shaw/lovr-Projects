@@ -13,15 +13,15 @@ local exitChannel = lovr.thread.getChannel(exitChannelName)
 
 i = 1
 while true and exitChannel:pop() ~= "exit" do
-    local response = request.send("http://192.168.0.103:4990/stream")
+    local response = request.send("http://192.168.0.104:4990/stream")
     if response and response.body ~= "False" and response.code == 200 then
         channel:push(lovr.data.newImage(lovr.data.newBlob(response.body)))
         response = {}
     end
     i = i + 1
-    if i % 10 == 0 then
+    if i % 50 == 0 then
         lovr.timer.sleep(0.2)
-        print("Clear channel")
+        -- print("Clear channel")
         channel:clear()
         i = 1
     end
