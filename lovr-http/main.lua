@@ -1,5 +1,7 @@
 local desktop = require 'desktop'
-local raymar = require 'raymarch'
+-- local raymar = require 'raymarch'
+local raymar = require 'app/models'
+
 
 function lovr.load(arg)
     -- DESKTOP SETUP
@@ -21,8 +23,9 @@ function lovr.load(arg)
 
 end
 
-function lovr.update()
+function lovr.update(dt)
     --
+    raymar.update(dt)
     desktop.update()
 end
 

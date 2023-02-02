@@ -19,7 +19,7 @@ end
 
 function loadSourceInfo()
     bytesInfoAllSourceFiles = 0
-    for idx, en in ipairs({"main.lua", "NOTES", "stream.lua", "play.lua", "utils.lua"}) do
+    for idx, en in ipairs({"main.lua", "NOTES", "stream.lua", "play.lua", "utils.lua", "app/models.lua"}) do
         if lovr.filesystem.isFile(en) then
             contents, _ = lovr.filesystem.read(en)
             bytesInfoAllSourceFiles = bytesInfoAllSourceFiles + #contents
