@@ -82,8 +82,12 @@ function raymar.load()
     ]])
   end
   
+function raymar.update(dt)
+  local noop = dt
+end
+
 function raymar.draw()
-shader:send('time', lovr.headset.getTime())
+shader:send('time', lovr.timer.getTime())
 lovr.graphics.setShader(shader)
 lovr.graphics.fill()
 lovr.graphics.setShader()

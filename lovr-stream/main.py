@@ -1,19 +1,32 @@
 import time
 import traceback
 
-from flask import Flask, send_from_directory, send_file
+from flask import Flask, send_from_directory, send_file, request
 # from threading import Thread
 # from queue import Queue
 from multiprocessing import Process, Queue
 
+ip_allow_list = ["127.0.0.1"]
+ip_allow_list.extend([f"192.168.1.{i}" for i in range(10)])
+print(ip_allow_list)
 app = Flask(__name__)
 
 @app.route("/stream")
 def send_img():
-    if not q.empty():
+    if not q.empty() and request.environ.get('REMOTE_ADDR') in ip_allow_list:
         return send_file(q.get(), mimetype="image/png")
     return "False"
         # return send_from_directory("images", "visual studio code_.png")
+
+@app.route("/mm/<int:cd1>/<int:cd2>")
+def movemouse(cd1, cd2):
+    import win32api
+    win32api.SetCursorPos((cd1, cd2))
+    # For click , https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-mouse_event?redirectedfrom=MSDN
+    # ctypes.windll.user32.mouse_event(2, 0, 0, 0,0) # left down
+    # ctypes.windll.user32.mouse_event(4, 0, 0, 0,0) # left up
+    return "False"
+
 
 t1 = time.time()
 
@@ -42,21 +55,21 @@ def get_shots(q, t1):
         i = 0
         cont = True
         while cont:
-            if len(get_screens(screen)) <= 0:
-                cont = False
-                print("Saved " + str(i+1) + " images...")
-                continue
+            # if len(get_screens(screen)) <= 0:
+            #     cont = False
+            #     print("Saved " + str(i+1) + " images...")
+            #     continue
             if i % 50 == 0:
                 print("FPS", time.time() - t1)
-            hwnd = screens[0][0]
+            # hwnd = screens[0][0]
             try:
                 _,_,(x, y) = win32gui.GetCursorInfo()
-                hwnd = win32gui.GetDesktopWindow()
-                bbox = win32gui.GetWindowRect(hwnd)
-                img = ImageGrab.grab(bbox)
+                # hwnd = win32gui.GetDesktopWindow()
+                # bbox = win32gui.GetWindowRect(hwnd)
+                # img = ImageGrab.grab(bbox)
+                img = ImageGrab.grab()
                 draw = ImageDraw.Draw(img)
                 draw.polygon([(x,y), (x, y+10), (x+10, y), (x+10, y+10)], fill=128)
-                # img.save('images/'+screen+'_'+'.png')
                 img_io = io.BytesIO()
                 img.save(img_io, "PNG")
                 img_io.seek(0)

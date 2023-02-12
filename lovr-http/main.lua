@@ -1,6 +1,6 @@
 local desktop = require 'desktop'
--- local raymar = require 'raymarch'
-local raymar = require 'app/models'
+local app = require 'app/raymarch'
+-- local app = require 'app/models'
 
 
 function lovr.load(arg)
@@ -19,13 +19,13 @@ function lovr.load(arg)
     print("DEBUG"..tostring(debugScene))
 
     -- ACTUAL SCENE RELATED STUFF
-    raymar.load()
+    app.load()
 
 end
 
 function lovr.update(dt)
     --
-    raymar.update(dt)
+    app.update(dt)
     desktop.update()
 end
 
@@ -36,7 +36,7 @@ function lovr.draw()
         -- print("DEBUGGING")
     else
         -- lovr.graphics.print(p, 1, 3, -3)
-        raymar.draw()
+        app.draw()
         lovr.graphics.print("FPS -"..lovr.timer.getFPS(), 1, 3, -3)
     end
     desktop.draw()
