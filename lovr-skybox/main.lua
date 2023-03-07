@@ -55,11 +55,11 @@ function lovr.load()
   ocean = grid(100)
   -- shader:send('material', lovr.graphics.newTexture('water-surface-2.jpg'))
   skybox = lovr.graphics.newTexture(
-    "OBJ/lakeside.jpg",
+    "OBJ/tuni3.jpg",
     { mipmaps = false })
   -- shader:send('material', skybox)
     
-  envMap = lovr.graphics.newTexture("OBJ/lakeside2.jpg", {mipmaps=false})
+  envMap = lovr.graphics.newTexture("OBJ/tuni3.jpg", {mipmaps=false})
   nMap = lovr.graphics.newTexture("wave.png")
   terrainScene.load()
   shader:send('lovrEnvTexture', envMap)

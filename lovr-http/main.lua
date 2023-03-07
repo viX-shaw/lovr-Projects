@@ -2,7 +2,6 @@ local desktop = require 'desktop'
 local app = require 'app/raymarch'
 -- local app = require 'app/models'
 
-
 function lovr.load(arg)
     -- DESKTOP SETUP
     debugScene = false
