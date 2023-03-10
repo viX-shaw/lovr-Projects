@@ -74,13 +74,14 @@ function checkEvents()
         print("wasPressed")
       end
       wasReleased = false
+      updatePianoKeysPosition()
     else
       if wasPressed then
         wasReleased = true
       end
       wasPressed = false
     end
-    alternateMotion() -- only change positions when changing location of the piano
+    -- alternateMotion() -- only change positions when changing location of the piano
   end
 end
 
@@ -88,7 +89,7 @@ function alternateMotion()
   if wasPressed then
     for idx, coll in ipairs(keys.colliders) do
       local offset = vec3(coll:getPosition()) - vec3(hands.colliders[6]:getPosition())
-      local halfSize = 0.5--wKeyShape.x
+      local halfSize = 0.25--wKeyShape.x
       local x, y, z = offset:unpack()
       if math.abs(x) < halfSize and math.abs(y) < halfSize and math.abs(z) < halfSize then
         drag.active = true
@@ -124,18 +125,21 @@ function setupChannels()
 end
 
 function scene.load()
+  print("LOADING SCENE")
+  if world ~= nil then
+    scene.clean()
+  end
   setupChannels()
   -- Setup complete  
   world = lovr.physics.newWorld(0, -2, 0, false)
     -- ground plane
   local box = world:newBoxCollider(vec3(0, 0, 0), vec3(20, 0.1, 20))
     -- just one lonely piano key
-
   local pianoKey = 48
   for octave = 0, octaves do
     local newPos = 0
     for key = 1, 5 do
-      local midival = (octaves + 1) * (pianoKey - 1) + 2 * key
+      local midival = (pianoKey - 1) + 2 * key + 12 * octave
       newPos = keysStartPos + vec3(wKeyShape.x, 0.0, 0.0):mul(key) + vec3(wKeyShape.x / 2, 0.012, -0.0125 * 2)
       if key > 2 then
         midival = midival + 1
@@ -149,7 +153,7 @@ function scene.load()
       -- pianoKey = pianoKey + 1
     end
     for key = 1, 7 do
-      local midival = (octaves + 1) * pianoKey + 2 * (key - 1)
+      local midival = pianoKey + 2 * (key - 1) + 12 * octave
       if key > 3 then
         midival = midival - 1
       end
@@ -162,7 +166,7 @@ function scene.load()
       -- pianoKey = pianoKey + 1
     end
     keysStartPos = newPos
-    pianoKey = pianoKey + 12
+    -- pianoKey = pianoKey + 12
   end
 
   --create colliders for all finger tips
@@ -184,6 +188,31 @@ function scene.load()
         --   print("Pressing...  "..collider:getUserData())
         -- end
       end)
+  end
+end
+
+function updatePianoKeysPosition()
+  local bKeyShape = vec3(0.01, 0.01, 0.07)
+  local wKeyShape = vec3(0.03, 0.025, 0.115)
+  local keysStartPos = vec3(hands.colliders[6]:getPosition()) + vec3(0.0, 0.1, 0.0)
+  local count = 1
+  for octave = 0, octaves do
+    local newPos = 0
+    for key = 1, 5 do
+      newPos = keysStartPos + vec3(wKeyShape.x, 0.0, 0.0):mul(key) + vec3(wKeyShape.x / 2, 0.012, -0.0125 * 2)
+      if key > 2 then
+        newPos = keysStartPos + vec3(wKeyShape.x, 0.0, 0.0):mul(key+1) + vec3(wKeyShape.x / 2, 0.012, -0.0125 * 2)
+      end
+      keys.colliders[count]:setPosition(newPos:unpack())
+      count = count + 1
+    end
+    for key = 1, 7 do
+      newPos = keysStartPos + vec3(wKeyShape.x, 0.0, 0.0):mul(key) + vec3(0.001, 0.0, 0.0)
+      keys.colliders[count]:setPosition(newPos:unpack())
+      count = count + 1
+    end
+    keysStartPos = newPos
+    -- pianoKey = pianoKey + 12
   end
 end
 
@@ -248,7 +277,7 @@ function scene.draw()
   for i, collider in ipairs(hands.colliders) do
     lovr.graphics.setColor(0.1, 0.3, 0.7)
     if not mode then
-      lovr.graphics.setColor(0.1, 0.3, 0.3)
+      lovr.graphics.setColor(0.9, 0.0, 0.1)
     end
     drawCollider(collider, 'sphere')
   end
@@ -300,7 +329,11 @@ end
 
 function scene.clean()
   world:destroy()
-  hands = {}
+  hands = {
+    colliders = {nil, nil, nil, nil, nil, nil, nil, nil, nil, nil},
+    touching = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    touchingPrevFrame = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+  }
   world = {}
 end
 
