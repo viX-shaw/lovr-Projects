@@ -1,11 +1,11 @@
-hands = {}
-loco = {
-  pose = lovr.math.newMat4()
+local hands = {}
+local loco = {
+  pose = lovr.math.newMat4(),
   turnLeft = false,
   turnRight = false,
   moveForward = false,
   turningSpeed = 2 * math.pi * 1 / 6,
-  walkingSpeed = 4
+  walkingSpeed = 2
 }
 
 
@@ -18,7 +18,7 @@ function checkPinch(pX, pY, pZ, qX, qY, qZ, threshold)
 end
 
 function checkEvents()
-  if not mode then
+  if #hands > 9 then
     local x1, y1, z1 = unpack(hands[6], 1, 3) --:getPosition() -- right thumb tip
     local x2, y2, z2 = unpack(hands[7], 1, 3) --:getPosition() -- right index tip
     local x3, y3, z3 = unpack(hands[1], 1, 3) --:getPosition() -- left thumb tip
@@ -67,10 +67,10 @@ function loco.update(dt)
   if loco.moveForward then
     -- move forward
     loco.pose:translate(direction * loco.walkingSpeed * dt)
-  else if loco.turnLeft then
+  elseif loco.turnLeft then
     -- turn left
     loco.pose:rotate(loco.turningSpeed * dt, 0, 1, 0)
-  else loco.turnRight then
+  elseif loco.turnRight then
     -- turn right
     loco.pose:rotate(-loco.turningSpeed * dt, 0, 1, 0)
   end
@@ -80,8 +80,13 @@ function loco.draw()
   lovr.graphics.transform(mat4(loco.pose):invert())
   -- Draw fingertips
   for i = 1, #hands do
-    local x,y,z = unpack(hands[i],1,3)
-    lovr.graphics.sphere(x,y,z, 0.01)
+    -- local x,y,z = unpack(hands[i],1,3)
+    -- lovr.graphics.sphere(x,y,z, 0.01)sdfsdf
+    local poseRW = mat4(unpack(hands[i]))
+    local poseVR = mat4(loco.pose):mul(poseRW)
+    poseVR:scale(0.01)
+    lovr.graphics.sphere(poseVR)
+  end
 end
 
 return loco

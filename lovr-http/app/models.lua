@@ -23,20 +23,38 @@ function gals.load()
       })
     -- skybox = lovr.graphics.newTexture('app/sky-15.jpg', {type = 'cube'})
     model = lovr.graphics.newModel('app/basic.glb')
+    -- joy_model = lovr.graphics.newModel('app/joy_rigged.glb')
     shader = lovr.graphics.newShader('standard', {
         flags = {
-            normalMap = false,
+            normalMap = true,
             indirectLighting = true,
             occlusion = true,
             emissive = true,
-            skipTonemap = false,
+            skipTonemap = true,
             animated = true
           }
     })
-    shader:send('lovrLightDirection', { 0, 10, 10 })
-    shader:send('lovrExposure', 0.25)
-    -- shader:send('lovrLightColor', { .9, .9, .8, 1.0 })
+
+    -- joy_shader = lovr.graphics.newShader('standard', {
+    --     flags = {
+    --         normalMap = false,
+    --         indirectLighting = true,
+    --         occlusion = true,
+    --         emissive = true,
+    --         skipTonemap = true,
+    --         animated = true
+    --       }
+    -- })
+    shader:send('lovrLightDirection', { 0, 10, -10 })
+    -- joy_shader:send('lovrLightDirection', { 0, 10, -10 })
+
+    shader:send('lovrExposure', 0.5)
+    shader:send('lovrLightColor', { .9, .9, .8, 1.0 })
     shader:send('lovrEnvironmentMap', skybox)
+
+    -- joy_shader:send('lovrExposure', 0.5)
+    -- joy_shader:send('lovrEnvironmentMap', skybox)
+
     for ind = 1, model:getAnimationCount(), 1 do
         print("ANim name  "..model:getAnimationName(ind))
     end
@@ -46,6 +64,11 @@ end
 
 function gals.draw()
     lovr.graphics.skybox(skybox)
+    lovr.graphics.setShader(joy_shader)
+    -- joy_model:draw(-0.5, 0, -0.5, 1.0)
+-- refreshK
+    -- joy_model:animate(2, lovr.timer.getTime())
+
     lovr.graphics.setShader(shader)
     -- model:draw(0, 0, -2, .01)
     -- gals.action()  
@@ -53,70 +76,23 @@ function gals.draw()
     model:draw(x, y, z, 1.0, galDirection)
     model:animate(anim_index_playing, lovr.timer.getTime(), 1.0 - idle_mix)
     model:animate(1, lovr.timer.getTime(), idle_mix)
-      
+    
     lovr.graphics.setShader()
 end
 
--- function gals.update(dt)
---     -- print("TUrn right duration"..action_duration)
---     if lovr.timer.getAverageDelta() < 0.05 then
---         if lovr.timer.getTime() - sTime > action_duration then
---             -- local action = lovr.math.random(5)
---             local action = 5 -- walk forward
---             action_duration = lovr.math.random(5)
---             if action == WALKBACK then -- back
---                 anim_walk_dir = -1
---             elseif action == WALKFOR then
---                 anim_walk_dir = 1
---             elseif action == TURNLEFT then
---                 anim_turn_dir = 1
---                 action_duration = math.max(0.3, lovr.math.random())
---             elseif action == TURNRIGHT then
---                 anim_turn_dir = -1
---                 action_duration = math.max(0.3, lovr.math.random())
---             end
---             sTime = lovr.timer.getTime()
---             anim_index_playing = action
---         end
---     else
---         sTime = lovr.timer.getTime()
---     end
--- end
+function dynamicLightDir()
+    local angle, ax, ay, az = lovr.headset.getOrientation('head')
+    local dir = lovr.math.newQuat():set(angle, ax, ay, az):direction()*10
+    joy_shader:send('lovrLightDirection', { dir:unpack() })
 
--- function gals.action()
---     -- Figure out how to draw correctly when turn animations finish
---     if lovr.timer.getAverageDelta() < 0.05 then
---         if anim_index_playing == IDLE or anim_index_playing == WALKFOR or anim_index_playing == WALKBACK then
---             local quatobj = lovr.math.newQuat()
---             local walkdir = quatobj:set(galDirection, 0,1,0)
---             -- print(walkdir:direction():unpack()) -- This started needing a negation to behave correctly
---             galPosition = vec3(unpack(galPosition)) + -walkdir:direction() *0.3*lovr.timer.getDelta() --0.3m/s
---             local x, y, z = galPosition:unpack()
---             galPosition = {galPosition:unpack()}
---             idle_mix = 0.1
---             model:draw(x, y, z, 1.0, galDirection)
---         elseif anim_index_playing == TURNLEFT then
---             local x, y, z = unpack(galPosition)
---             galDirection = galDirection + (1.57/model:getAnimationDuration(TURNLEFT))*lovr.timer.getDelta()
---             idle_mix = math.pow(1.0 / 1.57 * ((-0.08 + galDirection) % 1.57), 1.0)
---             model:draw(x, y, z, 1.0, galDirection)
---             print("IDLE_MIX "..idle_mix.." "..galDirection)
---         elseif anim_index_playing == TURNRIGHT then
---             local x, y, z = unpack(galPosition)
---             galDirection = galDirection - (1.57/model:getAnimationDuration(TURNLEFT))*lovr.timer.getDelta()
---             model:draw(x, y, z, 1.0, galDirection)
---         end
---         model:animate(anim_index_playing, lovr.timer.getTime(), 1.0 - idle_mix)
---         model:animate(1, lovr.timer.getTime(), idle_mix)
---     end
--- end
 
--- Mixing makes it better by stretching across the length of the rotation
--- There is still twitching but still good
-
---Refactor
-    -- No need to be separate for LEFT/RIGHT
-    -- foundation for scripting
+    if counter == nil then
+        counter = lovr.timer.getTime()
+    elseif lovr.timer.getTime() - counter > 6 then
+        print(dir.z)
+        counter = lovr.timer.getTime()
+    end
+end
 
 function syncIdleAnim(action)
     idle_mix = 1.0
@@ -138,9 +114,10 @@ function syncTurningAnim(action)
         turnDir = -1
     end
     local x, y, z = unpack(galPosition)
-    galDirection = galDirection + turnDir*(1.57/model:getAnimationDuration(action))*lovr.timer.getDelta()
-    idle_mix = math.pow(1.0 / 1.57 * ((-turnDir*0.08 + galDirection) % 1.57), 1.0)
+    -- galDirection = galDirection + turnDir*(1.57/model:getAnimationDuration(action))*lovr.timer.getDelta()
+    -- idle_mix = math.pow(1.0 / 1.57 * ((-turnDir*0.08 + galDirection) % 1.57), 1.0)
     -- print("IDLE_MIX "..idle_mix.." "..galDirection)
+    idle_mix = 0
 
 end
 
@@ -153,11 +130,13 @@ local actionHandling = {
     syncWalkingAnim
 }
 
-local actionQ = {WALKFOR, WALKFOR, WALKFOR, TURNRIGHT, WALKFOR, WALKFOR, WALKFOR, TURNLEFT}
+-- local actionQ = {WALKFOR, WALKFOR, WALKFOR, TURNRIGHT, WALKFOR, WALKFOR, WALKFOR, TURNLEFT}
+local actionQ = {TURNLEFT, TURNLEFT, TURNLEFT, TURNLEFT, TURNLEFT, TURNLEFT, TURNLEFT}
+
 table.insert(gals, actionQ)
 
 function gals.update(dt)
-    gals.action()    
+    gals.action()
 end
 
 function gals.action()
@@ -168,6 +147,9 @@ function gals.action()
                 print("playing "..anim_index_playing)
                 action_duration = model:getAnimationDuration(anim_index_playing)
                 sTime = lovr.timer.getTime()
+            end
+            if lovr.timer.getTime() - sTime + 0.1 > action_duration then
+                galDirection = galDirection + 1.57
             end
             actionHandling[anim_index_playing](anim_index_playing)
         else
