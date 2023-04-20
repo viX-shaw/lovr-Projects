@@ -1,8 +1,11 @@
 local desktop = require 'desktop'
-local locomotion = require 'locomotion'
+local loco = require 'locomotion'
+local locomotion, hands = loco[1], loco[2]
 -- local app = require 'app/raymarch'
 local app = require 'app/models'
+local ui = require 'app/ui'
 
+print(hands)
 function lovr.load(arg)
     -- DESKTOP SETUP
     debugScene = false
@@ -27,6 +30,7 @@ function lovr.update(dt)
     --
     locomotion.update(dt)
     app.update(dt)
+    ui.update(hands, dt)
     desktop.update()
 end
 
@@ -39,6 +43,7 @@ function lovr.draw()
         -- lovr.graphics.print(p, 1, 3, -3)
         locomotion.draw()
         app.draw()
+        ui.draw(hands)
         lovr.graphics.print("FPS -"..lovr.timer.getFPS(), 1, 3, -3)
     end
     desktop.draw()

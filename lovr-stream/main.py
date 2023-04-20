@@ -1,10 +1,15 @@
+import io
 import time
+import glob
 import traceback
 
+from PIL import Image
 from flask import Flask, send_from_directory, send_file, request
 # from threading import Thread
 # from queue import Queue
 from multiprocessing import Process, Queue
+
+thumbnails_path = []
 
 ip_allow_list = ["127.0.0.1"]
 ip_allow_list.extend([f"192.168.1.{i}" for i in range(10)])
@@ -27,6 +32,27 @@ def movemouse(cd1, cd2):
     # ctypes.windll.user32.mouse_event(4, 0, 0, 0,0) # left up
     return "False"
 
+@app.route("/thumbnails/<int:dims>/<int:index>")
+def loadthumbnails(dims, index):
+    global thumbnails_path
+    size = 200, 200
+    img_io = None
+    if len(thumbnails_path) == 0:
+        thumbnails_path = glob.glob("D:/Program Files/blender/random/*.jpg")
+    with Image.open(thumbnails_path[index]) as im:
+        im.thumbnail(size)
+        img_io = io.BytesIO()
+        im.save(img_io, 'PNG')
+        img_io.seek(0)
+
+    return send_file(img_io, mimetype="image/png")
+
+@app.route("/fullsize/<int:index>")
+def loadskybox(index):
+    global thumbnails_path
+    if len(thumbnails_path) >= index:
+        return send_file(thumbnails_path[index])
+    return "False"
 
 t1 = time.time()
 

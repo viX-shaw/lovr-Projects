@@ -89,4 +89,4 @@ function loco.draw()
   end
 end
 
-return loco
+return {loco, hands}
