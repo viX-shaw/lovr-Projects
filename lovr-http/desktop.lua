@@ -36,7 +36,7 @@ function desktop.draw()
         mat:setTexture(tex)
         _:release()
     end
-    lovr.graphics.plane(mat, 0, 1.6, -1.0, 1.366, 0.728)
+    lovr.graphics.plane(mat, 0, 1.3, -0.3, 1.366/3, 0.728/3, -1.57/3, 1,0,0)
 end
 
 function desktop.restart()

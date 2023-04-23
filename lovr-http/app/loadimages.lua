@@ -4,11 +4,13 @@ local request = require("luajit-request/luajit-request")
 local lovr = {
     thread = require 'lovr.thread',
     data = require 'lovr.data',
-    timer = require 'lovr.timer'
+    timer = require 'lovr.timer',
+    math = require 'lovr.math'
 }
 
 local channelName, imgDims, nImages = ...
 local channel = lovr.thread.getChannel(channelName)
+local remote_ip = '192.168.1.7:4990'
 
 function process_response(response)
     if response and response.body ~= "False" and response.code == 200 then
@@ -19,16 +21,17 @@ function process_response(response)
     end
 end
 
+lovr.timer.sleep(lovr.math.random())
 if channelName == "load-thumbnails" then
-    i = 1
-    while i <= nImages do
+    i = nImages
+    while i < (nImages + 3) do
         local response = nil
-        response = request.send("http://192.168.1.5:4990/thumbnails/"..imgDims.."/"..i)
+        response = request.send("http://"..remote_ip.."/thumbnails/"..imgDims.."/"..i)
         process_response(response)
         i = i + 1
     end
 else
     nth_image = nImages
-    response = request.send("http://192.168.1.5:4990/fullsize/"..nth_image)
+    response = request.send("http://"..remote_ip.."/fullsize/"..nth_image)
     process_response(response)
 end

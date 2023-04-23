@@ -28,9 +28,11 @@ end
 
 function lovr.update(dt)
     --
-    locomotion.update(dt)
-    app.update(dt)
-    ui.update(hands, dt)
+    if not debugScene then
+        locomotion.update(dt)
+        app.update(dt)
+        ui.update(hands, dt)
+    end
     desktop.update()
 end
 
