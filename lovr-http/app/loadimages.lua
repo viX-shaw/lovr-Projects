@@ -10,7 +10,7 @@ local lovr = {
 
 local channelName, imgDims, nImages = ...
 local channel = lovr.thread.getChannel(channelName)
-local remote_ip = '192.168.1.7:4990'
+local remote_ip = '192.168.1.3:4990'
 
 function process_response(response)
     if response and response.body ~= "False" and response.code == 200 then
