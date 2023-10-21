@@ -19,6 +19,8 @@ ffi.cdef[[
     void libvlc_media_player_release( libvlc_media_player_t *p_mi );
     void libvlc_media_player_set_media( libvlc_media_player_t *p_mi,
                                                     libvlc_media_t *p_md );
+
+    void libvlc_media_player_pause(libvlc_media_player_t * p_mi);
     void libvlc_media_player_stop ( libvlc_media_player_t *p_mi );
     int libvlc_media_player_stop_async (libvlc_media_player_t *p_mi);
     int libvlc_media_player_play ( libvlc_media_player_t *p_mi );
@@ -46,10 +48,143 @@ ffi.cdef[[
     typedef void(* libvlc_callback_t) (const struct libvlc_event_t *p_event, void *p_data);
 
     libvlc_event_manager_t * libvlc_media_player_event_manager(libvlc_media_player_t *p_mi);
-    int libvlc_event_attach	(libvlc_event_manager_t * p_event_manager,
+    int libvlc_event_attach (libvlc_event_manager_t * p_event_manager,
                              libvlc_event_type_t i_event_type,
                              libvlc_callback_t f_callback,
                              void * user_data);	
+    enum libvlc_event_e {
+        /* Append new event types at the end of a category.
+            * Do not remove, insert or re-order any entry.
+            */
+    
+        /**
+            * Metadata of a \link #libvlc_media_t media item\endlink changed
+            */
+        libvlc_MediaMetaChanged=0,
+        /**
+            * Subitem was added to a \link #libvlc_media_t media item\endlink
+            * \see libvlc_media_subitems()
+            */
+        libvlc_MediaSubItemAdded,
+        /**
+            * Duration of a \link #libvlc_media_t media item\endlink changed
+            * \see libvlc_media_get_duration()
+            */
+        libvlc_MediaDurationChanged,
+        /**
+            * Parsing state of a \link #libvlc_media_t media item\endlink changed
+            * \see libvlc_media_parse_request(),
+            *      libvlc_media_get_parsed_status(),
+            *      libvlc_media_parse_stop()
+            */
+        libvlc_MediaParsedChanged,
+    
+        /* Removed: libvlc_MediaFreed, */
+        /* Removed: libvlc_MediaStateChanged */
+    
+        /**
+            * Subitem tree was added to a \link #libvlc_media_t media item\endlink
+            */
+        libvlc_MediaSubItemTreeAdded = libvlc_MediaParsedChanged + 3,
+        /**
+            * A thumbnail generation for this \link #libvlc_media_t media \endlink completed.
+            * \see libvlc_media_thumbnail_request_by_time()
+            * \see libvlc_media_thumbnail_request_by_pos()
+            */
+        libvlc_MediaThumbnailGenerated,
+        /**
+            * One or more embedded thumbnails were found during the media preparsing
+            * The user can hold these picture(s) using libvlc_picture_retain if they
+            * wish to use them
+            */
+        libvlc_MediaAttachedThumbnailsFound,
+    
+        libvlc_MediaPlayerMediaChanged=0x100,
+        libvlc_MediaPlayerNothingSpecial,
+        libvlc_MediaPlayerOpening,
+        libvlc_MediaPlayerBuffering,
+        libvlc_MediaPlayerPlaying,
+        libvlc_MediaPlayerPaused,
+        libvlc_MediaPlayerStopped,
+        libvlc_MediaPlayerForward,
+        libvlc_MediaPlayerBackward,
+        libvlc_MediaPlayerStopping,
+        libvlc_MediaPlayerEncounteredError,
+        libvlc_MediaPlayerTimeChanged,
+        libvlc_MediaPlayerPositionChanged,
+        libvlc_MediaPlayerSeekableChanged,
+        libvlc_MediaPlayerPausableChanged,
+        /* libvlc_MediaPlayerTitleChanged, */
+        libvlc_MediaPlayerSnapshotTaken = libvlc_MediaPlayerPausableChanged + 2,
+        libvlc_MediaPlayerLengthChanged,
+        libvlc_MediaPlayerVout,
+    
+        /* libvlc_MediaPlayerScrambledChanged, use libvlc_MediaPlayerProgramUpdated */
+    
+        /** A track was added, cf. media_player_es_changed in \ref libvlc_event_t.u
+            * to get the id of the new track. */
+        libvlc_MediaPlayerESAdded = libvlc_MediaPlayerVout + 2,
+        /** A track was removed, cf. media_player_es_changed in \ref
+            * libvlc_event_t.u to get the id of the removed track. */
+        libvlc_MediaPlayerESDeleted,
+        /** Tracks were selected or unselected, cf.
+            * media_player_es_selection_changed in \ref libvlc_event_t.u to get the
+            * unselected and/or the selected track ids. */
+        libvlc_MediaPlayerESSelected,
+        libvlc_MediaPlayerCorked,
+        libvlc_MediaPlayerUncorked,
+        libvlc_MediaPlayerMuted,
+        libvlc_MediaPlayerUnmuted,
+        libvlc_MediaPlayerAudioVolume,
+        libvlc_MediaPlayerAudioDevice,
+        /** A track was updated, cf. media_player_es_changed in \ref
+            * libvlc_event_t.u to get the id of the updated track. */
+        libvlc_MediaPlayerESUpdated,
+        libvlc_MediaPlayerProgramAdded,
+        libvlc_MediaPlayerProgramDeleted,
+        libvlc_MediaPlayerProgramSelected,
+        libvlc_MediaPlayerProgramUpdated,
+        /**
+            * The title list changed, call
+            * libvlc_media_player_get_full_title_descriptions() to get the new list.
+            */
+        libvlc_MediaPlayerTitleListChanged,
+        /**
+            * The title selection changed, cf media_player_title_selection_changed in
+            * \ref libvlc_event_t.u
+            */
+        libvlc_MediaPlayerTitleSelectionChanged,
+        libvlc_MediaPlayerChapterChanged,
+        libvlc_MediaPlayerRecordChanged,
+    
+        /**
+            * A \link #libvlc_media_t media item\endlink was added to a
+            * \link #libvlc_media_list_t media list\endlink.
+            */
+        libvlc_MediaListItemAdded=0x200,
+        /**
+            * A \link #libvlc_media_t media item\endlink is about to get
+            * added to a \link #libvlc_media_list_t media list\endlink.
+            */
+        libvlc_MediaListWillAddItem,
+        /**
+            * A \link #libvlc_media_t media item\endlink was deleted from
+            * a \link #libvlc_media_list_t media list\endlink.
+            */
+        libvlc_MediaListItemDeleted,
+        /**
+            * A \link #libvlc_media_t media item\endlink is about to get
+            * deleted from a \link #libvlc_media_list_t media list\endlink.
+            */
+        libvlc_MediaListWillDeleteItem,
+        /**
+            * A \link #libvlc_media_list_t media list\endlink has reached the
+            * end.
+            * All \link #libvlc_media_t items\endlink were either added (in
+            * case of a \ref libvlc_media_discoverer_t) or parsed (preparser).
+            */
+        libvlc_MediaListEndReached
+    };
 ]]
 
 return vlc

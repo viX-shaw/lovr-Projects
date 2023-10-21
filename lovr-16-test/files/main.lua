@@ -20,12 +20,14 @@
 -- local vlc = require 'stream'
 
 -- local imageData = nil
--- local width = 864
--- local height = 480
+local width = nil
+local height = nil
 -- local pitch = width * 4
 
 local drawImg = nil
-local drawTex = nil
+local drawTexLeft = nil
+local drawTexRight = nil
+
 -- local image = lovr.data.newImage(width, height)
 -- local pixels = ffi.cast('uint8_t*', image:getBlob():getPointer())
 -- local startTime = nil
@@ -37,8 +39,9 @@ local drawTex = nil
 
 -- local stopped = false
 local channelName = "q"
+local imgDimsChannelName = "r"
 local channel = lovr.thread.getChannel(channelName)
-
+local imgDimsChannel = lovr.thread.getChannel(imgDimsChannelName)
 -- local lock_callback = ffi.cast("libvlc_video_lock_cb", function(opaque, planes)
 -- -- add logic
 --     -- planes = ffi.typeof("uint8_t[$][$][$]", width, height, 4)
@@ -105,12 +108,24 @@ local channel = lovr.thread.getChannel(channelName)
 -- end
 
 function lovr.load()
-    success = lovr.headset.setPassthrough(true)
-    print("ENABLING PASSTHRU..")
-    print(success)
+    -- success = lovr.headset.setPassthrough(true)
+    -- print("ENABLING PASSTHRU..")
+    -- print(success)
     lovr.graphics.setBackgroundColor(0,0.08,0.1,0)
     stream = lovr.thread.newThread('vlc.lua')
-    stream:start(channelName)
+    stream:start(channelName, imgDimsChannelName)
+end
+
+function setImgDims(blobsize)
+    if height then return end
+    local _, present = imgDimsChannel:peek()
+    if present then
+        width = imgDimsChannel:pop()
+        height = blobsize/(width*4)
+        print("Setting Width = "..width.." and Height= "..height.." in Main Thread")
+        drawTexLeft = lovr.graphics.newTexture(width, height, {mipmaps = false,  usage = {'sample', 'render', 'transfer'}})
+        -- drawTexRight = lovr.graphics.newTexture(width-1000, height, { usage = {'sample', 'render', 'transfer'}})
+    end
 end
 
 function lovr.draw(pass)
@@ -118,9 +133,14 @@ function lovr.draw(pass)
     if frame then
         local blob = lovr.data.newBlob(frame)
         if blob:getSize() > 0 then
-            print("HERE"..blob:getSize())
-            drawImg = lovr.data.newImage(864, 480, 'rgba8', blob)
-            drawTex = lovr.graphics.newTexture(drawImg, {mipmaps = false})
+            -- print("HERE"..blob:getSize())
+            -- drawImg = lovr.data.newImage(864, 480, 'rgba8', blob)
+            setImgDims(blob:getSize())
+            drawImg = lovr.data.newImage(width, height, 'rgba8', blob)
+            -- print('IMG DATA')
+            -- drawTex = {}
+            -- drawTex = lovr.graphics.newTexture(drawImg)
+            -- drawTex = lovr.graphics.newTexture(lovr.data.newImage(width, height, 'rgba8', blob))
         end
         frame = {}
     end
@@ -128,24 +148,28 @@ function lovr.draw(pass)
     -- if imageData ~= nil then
     -- end
     
-    if drawImg then
-        print(drawImg:getPixel(300,300))
-        pass:setMaterial(drawTex)
+    -- if drawImg then
+    --     pass:setMaterial(drawTex)
+    -- end
+
+    if height then
+        drawTexLeft:setPixels(drawImg,0,0,1,1,0,0,1,1,1000,height*0.8)-- dst_w, dst_h, dst_layer, dst_level, src_w, src_h, src_layer, src_level
+        -- drawTexRight:setPixels(drawImg,1000,0,1,1,0,0,1,1,width-1000,height*0.8)
+        if width > 1000 then
+            drawTexLeft:setPixels(drawImg,1000,0,1,1,1000,0,1,1,width-1000,height*0.8)-- dst_w, dst_h, dst_layer, dst_level, src_w, src_h, src_layer, src_level
+        end
+        drawTexLeft:setPixels(drawImg,0,(height*0.8),1,1,0,(height*0.8),1,1,width,height*0.2)
+        pass:setMaterial(drawTexLeft)
+        pass:plane(0, 1.7, -1.0, width/1000, height/1000)
+        -- pass:setMaterial(drawTexRight)
+        -- pass:plane(0+(1000/2000), 1.7, -2, (width-1000)/2000, height/2000)
+    else
+        pass:plane(0, 1.7, -1.0, 0.864, 0.480) --master
     end
-    -- if stopped == false and lovr.timer.getTime() - startTime > 4 then
-    --     vlc.libvlc_media_player_stop(media_player)
-    --     vlc.libvlc_media_player_release(media_player)
-    --     vlc.libvlc_release(vlc_instance)
-    --     lock_callback:free()
-    --     unlock_callback:free()
-    --     stopped = true
-    --     print("PLAy ENDED")
-    -- end
-    -- if stopped then
-    --     pass:setMaterial(lovr.graphics.newTexture(image))
-    -- end
-    pass:plane(0, 1.7, -2, 0.864, 0.480)
     
+    -- local vidFramePass = lovr.graphics.getPass('transfer')
+    -- vidFramePass:copy(drawImg, drawTex)
+    -- lovr.graphics.submit(vidFramePass, pass) -- if in lovr.draw, submit along with the main pass
 end
 
 -- Notes
